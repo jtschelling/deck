@@ -1,15 +1,15 @@
 package deck
 
-import (
-
-)
+// import (
+//
+// )
 
 type Card struct {
   value Int
   suit String
 }
 
-var suits []string{
+var suits = []string{
   "club",
   "diamond",
   "heart",
@@ -28,5 +28,6 @@ func New() []Card (
       })
     }
   }
+
   return deck
 )
