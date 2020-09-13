@@ -9,6 +9,10 @@ import (
   "time"
 )
 
+/////////////
+// STRUCTS //
+/////////////
+
 type Card struct {
   Value int
   Suit string
@@ -19,7 +23,16 @@ type CardType struct {
   Value int
 }
 
-var CardTypes = []CardType{
+type Deck struct {
+  Cards []Card
+  Discard []Card
+}
+
+/////////////
+// GLOBALS //
+/////////////
+
+var cardTypes = []CardType{
   CardType {
     name: "Ace",
     Value: 0,
@@ -78,58 +91,35 @@ var CardTypes = []CardType{
   },
 }
 
-type Deck struct {
-  Cards []Card
-}
+var standardDeckSize = 52
 
-func (d Deck) Draw() (Deck, Card) {
-  card := d.Cards[0]
-  deck := Deck {
-    Cards: d.Cards[1:],
-  }
-  return deck, card
-}
-
-var StandardDeckSize = 52
-
-var Suits = [4]string{
+var suits = [4]string{
   "club",
   "diamond",
   "heart",
   "spade",
 }
 
-func CreateCardTypes(removedCards []string, jokerIncluded bool) []CardType {
-  if (removedCards == nil && jokerIncluded == false) {
-    return CardTypes[0:12]
-  } else if removedCards == nil {
-    return CardTypes
+//////////////////////////
+// FUNCTIONS ON STRUCTS //
+//////////////////////////
+
+func (d Deck) Draw() (Deck, Card) {
+  c := d.Cards[0]
+  d = Deck {
+    Cards: d.Cards[1:],
   }
-
-  var includedCardTypes []CardType
-  for i := 0; i < len(CardTypes); i++ {
-    if !CardTypeExcluded(removedCards, CardTypes[i].name) {
-      if CardTypes[i].name == "Joker" && !jokerIncluded {
-        continue
-      }
-
-      includedCardTypes = append(includedCardTypes, CardTypes[i])
-    }
-  }
-
-  return includedCardTypes
+  return d, c
 }
 
-func CardTypeExcluded(removedCards []string, cardType string) bool {
-  for _, cardName := range removedCards {
-    if cardName == cardType {
-      return true
-    }
-  }
+////////////
+// PUBLIC //
+////////////
 
-  return false
-}
-
+// Creates new deck.
+// Arguments:
+// removedCards - Array of card type names to remove from deck. Ex. {"Ace", "4", "King"}
+// numJokers - Integer number of joker cards to add to the deck.
 func New(removedCards []string, numJokers int) Deck {
   cardPosition := 0
 
@@ -137,23 +127,23 @@ func New(removedCards []string, numJokers int) Deck {
   if numJokers > 0 {
     jokerIncluded = true
   }
-  includedCardTypes := CreateCardTypes(removedCards, jokerIncluded)
+  includedCardTypes := createCardTypes(removedCards, jokerIncluded)
 
-  numNonJockerCards := len(Suits) * (len(includedCardTypes))
+  numNonJockerCards := len(suits) * (len(includedCardTypes))
   if jokerIncluded {
-    numNonJockerCards = len(Suits) * (len(includedCardTypes) - 1)
+    numNonJockerCards = len(suits) * (len(includedCardTypes) - 1)
   }
 
-  deck := make([]Card, (numNonJockerCards + numJokers))
+  d := make([]Card, (numNonJockerCards + numJokers))
 
-  for _, suit := range Suits {
+  for _, suit := range suits {
     for _, cardType := range includedCardTypes {
       // add jokers in the next for loop because they have a special value and no suit
       if jokerIncluded && cardType.name == "Joker" {
         continue
       }
 
-      deck[cardPosition] = Card {
+      d[cardPosition] = Card {
         Value: cardType.Value,
         Suit: suit,
       }
@@ -162,25 +152,76 @@ func New(removedCards []string, numJokers int) Deck {
   }
 
   for i := 0; i < numJokers; i++ {
-    deck[len(deck) - numJokers + i] = Card {
+    d[len(d) - numJokers + i] = Card {
       Value: -1,
       Suit: "",
     }
   }
 
   return Deck {
-    Cards: deck,
+    Cards: d,
+    Discard: make([]Card, 0),
   }
 }
 
-func Shuffle(deck Deck, style string) Deck {
-  switch style {
+// Places provided card in deck's discard pile.
+func AddToDiscard(d Deck, c Card) Deck {
+  return Deck {
+    Cards: d.Cards,
+    Discard: append(d.Discard, c),
+  }
+}
+
+// Shuffle the deck according to the specified style
+// Argument s accepts the following:
+// - "random"
+func Shuffle(d Deck, s string) Deck {
+  switch s {
   case "random":
     rand.Seed(time.Now().UnixNano())
-    rand.Shuffle(len(deck.Cards), func(i, j int) {
-      deck.Cards[i], deck.Cards[j] = deck.Cards[j], deck.Cards[i]
+    rand.Shuffle(len(d.Cards), func(i, j int) {
+      d.Cards[i], d.Cards[j] = d.Cards[j], d.Cards[i]
     })
   }
 
-  return deck
+  return d
+}
+
+/////////////
+// PRIVATE //
+/////////////
+
+// Creates list of card types to include in a new deck. Iterates over a standard
+// list and removes card types specified by the removedCards argument.
+func createCardTypes(removedCards []string, jokerIncluded bool) []CardType {
+  if (removedCards == nil && jokerIncluded == false) {
+    return cardTypes[0:12]
+  } else if removedCards == nil {
+    return cardTypes
+  }
+
+  var includedCardTypes []CardType
+  for i := 0; i < len(cardTypes); i++ {
+    if !cardTypeExcluded(removedCards, cardTypes[i].name) {
+      if cardTypes[i].name == "Joker" && !jokerIncluded {
+        continue
+      }
+
+      includedCardTypes = append(includedCardTypes, cardTypes[i])
+    }
+  }
+
+  return includedCardTypes
+}
+
+// Checks if the cardType argument matches any values in the removedCards list.
+// Return true if the card type should be excluded from the final deck.
+func cardTypeExcluded(removedCards []string, cardType string) bool {
+  for _, cardName := range removedCards {
+    if cardName == cardType {
+      return true
+    }
+  }
+
+  return false
 }

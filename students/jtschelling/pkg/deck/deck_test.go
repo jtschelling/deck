@@ -6,113 +6,90 @@ import (
 
 func TestCardTypeExcluded(t *testing.T) {
   shouldBeExcluded := "Ace"
-  if !CardTypeExcluded([]string{shouldBeExcluded}, "Ace") {
+  if !cardTypeExcluded([]string{shouldBeExcluded}, "Ace") {
     t.Errorf("%s should have been excluded", shouldBeExcluded)
   }
 
-  if CardTypeExcluded([]string{}, "King") {
+  shouldBeExcluded = "2"
+  if !cardTypeExcluded([]string{shouldBeExcluded}, "2") {
+    t.Errorf("%s should have been excluded", shouldBeExcluded)
+  }
+
+  if cardTypeExcluded([]string{}, "King") {
     t.Errorf("%s should not have been excluded", "King")
   }
 }
 
 func TestCreateCardTypes(t *testing.T) {
+  cardTypes := createCardTypes([]string{}, false)
+  if len(cardTypes) != 13 {
+    t.Errorf("Card type removed when remove array argument is empty.")
+  }
+
   cardTypesRemoved := []string{
     "Ace",
   }
 
-  cardTypes := CreateCardTypes(cardTypesRemoved, false)
+  cardTypes = createCardTypes(cardTypesRemoved, false)
   if len(cardTypes) != 12 {
-    t.Errorf("card not removed")
-  }
-}
-
-func testUnsortedDeck(testDeck Deck, deckSize int, numJokers int) bool {
-  expectedSuit  := 0
-  expectedValue := 0
-
-  for _, card := range testDeck.Cards {
-    if (card.Suit != Suits[expectedSuit] || card.Value != CardTypes[card.Value].Value) {
-      return false
-    }
-    expectedValue = (expectedValue + 1) % ((deckSize - numJokers) / len(Suits))
-
-    // move to next suit if expectedValue wrapped around to 0
-    if expectedValue == 0 {
-      expectedSuit++
-
-      // if jokers are in the deck we need to break when all the standard suits
-      // have been exhausted
-      if expectedSuit == len(Suits) {
-        break
-      }
-    }
-  }
-
-  if numJokers > 0 {
-    for i := 0; i < numJokers; i++ {
-      if (testDeck.Cards[(deckSize - numJokers) + i].Suit != "" || testDeck.Cards[(deckSize - numJokers) + i].Value != -1) {
-        return false
-      }
-    }
-  }
-
-  return true
-}
-
-func TestNew(t *testing.T) {
-  numJokers := 0
-  newDeck := New([]string{}, numJokers)
-
-  if len(newDeck.Cards) != StandardDeckSize + numJokers {
-    t.Errorf("Deck is not %d cards", StandardDeckSize + numJokers)
-  }
-
-  if testUnsortedDeck(newDeck, len(newDeck.Cards), numJokers) == false {
-    t.Errorf("New unsorted deck is not in the correct order.")
-  }
-}
-
-func TestNewWithRemoved(t *testing.T) {
-  numJokers := 0
-  newDeck := New([]string{}, numJokers)
-
-  if len(newDeck.Cards) != StandardDeckSize + numJokers {
-    t.Errorf("Deck is not %d cards", StandardDeckSize + numJokers)
-  }
-
-  if testUnsortedDeck(newDeck, len(newDeck.Cards), numJokers) == false {
-    t.Errorf("New unsorted deck is not in the correct order.")
+    t.Errorf("Ace not removed.")
   }
 }
 
 func TestCreateEuchreDeck(t *testing.T) {
   numJokers := 1
-  newDeck := New([]string{"2", "3", "4", "5", "6", "7", "8"}, numJokers)
+  d := New([]string{"2", "3", "4", "5", "6", "7", "8"}, numJokers)
 
-  if len(newDeck.Cards) != (25) {
+  if len(d.Cards) != (25) {
     t.Errorf("Deck is not %d cards", 25)
   }
 
-  if testUnsortedDeck(newDeck, len(newDeck.Cards), numJokers) == false {
+  if testUnsortedDeck(d, len(d.Cards), numJokers) == false {
+    t.Errorf("New unsorted deck is not in the correct order.")
+  }
+}
+
+func TestNew(t *testing.T) {
+  numJokers := 0
+  d := New([]string{}, numJokers)
+
+  if len(d.Cards) != standardDeckSize + numJokers {
+    t.Errorf("Deck is not %d cards", standardDeckSize + numJokers)
+  }
+
+  if testUnsortedDeck(d, len(d.Cards), numJokers) == false {
     t.Errorf("New unsorted deck is not in the correct order.")
   }
 }
 
 func TestNewWithJokers(t *testing.T) {
   numJokers := 5
-  newDeck := New([]string{}, numJokers)
+  d := New([]string{}, numJokers)
 
-  if len(newDeck.Cards) != (StandardDeckSize + numJokers) {
-    t.Errorf("Deck is not %d cards", (StandardDeckSize + numJokers))
+  if len(d.Cards) != (standardDeckSize + numJokers) {
+    t.Errorf("Deck is not %d cards", (standardDeckSize + numJokers))
   }
 
-  if testUnsortedDeck(newDeck, len(newDeck.Cards), numJokers) == false {
+  if testUnsortedDeck(d, len(d.Cards), numJokers) == false {
+    t.Errorf("New unsorted deck is not in the correct order.")
+  }
+}
+
+func TestNewWithRemoved(t *testing.T) {
+  numJokers := 0
+  d := New([]string{}, numJokers)
+
+  if len(d.Cards) != standardDeckSize + numJokers {
+    t.Errorf("Deck is not %d cards", standardDeckSize + numJokers)
+  }
+
+  if testUnsortedDeck(d, len(d.Cards), numJokers) == false {
     t.Errorf("New unsorted deck is not in the correct order.")
   }
 }
 
 func TestRandomShuffle(t *testing.T) {
-  newDeck      := New([]string{}, 0)
+  d := New([]string{}, 0)
 
   shuffled     := false
   orderedSuit  := 0
@@ -120,9 +97,9 @@ func TestRandomShuffle(t *testing.T) {
 
   // there is an infinitesimally small chance that the deck randomly sorts
   // in the same order as created, but I'm not going to account for that.
-  shuffledDeck := Shuffle(newDeck, "random")
-  for _, card := range shuffledDeck.Cards {
-    if (card.Suit != Suits[orderedSuit] || card.Value != orderedValue) {
+  shuffledDeck := Shuffle(d, "random")
+  for _, c := range shuffledDeck.Cards {
+    if (c.Suit != suits[orderedSuit] || c.Value != orderedValue) {
       shuffled = true
       break
     } else {
@@ -141,4 +118,41 @@ func TestRandomShuffle(t *testing.T) {
   if shuffled != true {
     t.Errorf("Deck was not shuffled randomly.")
   }
+}
+
+/////////////
+// PRIVATE //
+/////////////
+
+func testUnsortedDeck(d Deck, deckSize int, numJokers int) bool {
+  expectedSuit  := 0
+  expectedValue := 0
+
+  for _, c := range d.Cards {
+    if (c.Suit != suits[expectedSuit] || c.Value != cardTypes[c.Value].Value) {
+      return false
+    }
+    expectedValue = (expectedValue + 1) % ((deckSize - numJokers) / len(suits))
+
+    // move to next suit if expectedValue wrapped around to 0
+    if expectedValue == 0 {
+      expectedSuit++
+
+      // if jokers are in the deck we need to break when all the standard suits
+      // have been exhausted
+      if expectedSuit == len(suits) {
+        break
+      }
+    }
+  }
+
+  if numJokers > 0 {
+    for i := 0; i < numJokers; i++ {
+      if (d.Cards[(deckSize - numJokers) + i].Suit != "" || d.Cards[(deckSize - numJokers) + i].Value != -1) {
+        return false
+      }
+    }
+  }
+
+  return true
 }
