@@ -5,6 +5,7 @@
 package hand
 
 import (
+  "fmt"
   "github.com/jtschelling/deck/students/jtschelling/pkg/deck"
 )
 
@@ -12,25 +13,39 @@ type Hand struct {
   Cards []deck.Card
 }
 
-func Draw(deck deck.Deck, hand Hand, numToDraw int) Hand {
+func New() Hand {
+  cards := []deck.Card {
+    deck.Card {
+      Value: 1,
+      Suit: "heart",
+    },
+  }
+
+  return Hand {
+    Cards: cards,
+  }
+}
+
+func Draw(d deck.Deck, h Hand, numToDraw int) (deck.Deck, Hand) {
+  var drawnCard deck.Card
   for i := 0; i < numToDraw; i++ {
-    drawnCard := deck.Draw(*deck)
-    addToHand(*hand, drawnCard)
+    d, drawnCard = d.Draw()
+    h = addToHand(h, drawnCard)
   }
 
-  return hand
+  return d, h
 }
 
-func Show(hand Hand) {
-  for _, card := range hand.Cards {
-    fmt.Print()
+func Show(h Hand) {
+  for _, card := range h.Cards {
+    fmt.Println(card)
   }
 }
 
-func Discard(deck deck.Deck, card deck.Card) Hand {
-
+func Discard(d deck.Deck, c deck.Card) Hand {
+  return New()
 }
 
-func addToHand(hand *Hand, card deck.Card) {
-
+func addToHand(h Hand, c deck.Card) Hand {
+  return New()
 }

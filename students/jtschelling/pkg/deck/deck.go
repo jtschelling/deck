@@ -78,6 +78,18 @@ var CardTypes = []CardType{
   },
 }
 
+type Deck struct {
+  Cards []Card
+}
+
+func (d Deck) Draw() (Deck, Card) {
+  card := d.Cards[0]
+  deck := Deck {
+    Cards: d.Cards[1:],
+  }
+  return deck, card
+}
+
 var StandardDeckSize = 52
 
 var Suits = [4]string{
@@ -118,7 +130,7 @@ func CardTypeExcluded(removedCards []string, cardType string) bool {
   return false
 }
 
-func New(removedCards []string, numJokers int) []Card {
+func New(removedCards []string, numJokers int) Deck {
   cardPosition := 0
 
   jokerIncluded := false
@@ -156,15 +168,17 @@ func New(removedCards []string, numJokers int) []Card {
     }
   }
 
-  return deck
+  return Deck {
+    Cards: deck,
+  }
 }
 
-func Shuffle(deck []Card, style string) []Card {
+func Shuffle(deck Deck, style string) Deck {
   switch style {
   case "random":
     rand.Seed(time.Now().UnixNano())
-    rand.Shuffle(len(deck), func(i, j int) {
-      deck[i], deck[j] = deck[j], deck[i]
+    rand.Shuffle(len(deck.Cards), func(i, j int) {
+      deck.Cards[i], deck.Cards[j] = deck.Cards[j], deck.Cards[i]
     })
   }
 
