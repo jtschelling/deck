@@ -27,7 +27,7 @@ func TestCreateCardTypes(t *testing.T) {
   }
 }
 
-func testSortedDeck(testDeck []deck.Card, deckSize int, numJokers int) bool {
+func testUnsortedDeck(testDeck []deck.Card, deckSize int, numJokers int) bool {
   expectedSuit  := 0
   expectedValue := 0
 
@@ -68,7 +68,7 @@ func TestNew(t *testing.T) {
     t.Errorf("Deck is not %d cards", deck.StandardDeckSize + numJokers)
   }
 
-  if testSortedDeck(newDeck, len(newDeck), numJokers) == false {
+  if testUnsortedDeck(newDeck, len(newDeck), numJokers) == false {
     t.Errorf("New unsorted deck is not in the correct order.")
   }
 }
@@ -81,7 +81,7 @@ func TestNewWithRemoved(t *testing.T) {
     t.Errorf("Deck is not %d cards", deck.StandardDeckSize + numJokers)
   }
 
-  if testSortedDeck(newDeck, len(newDeck), numJokers) == false {
+  if testUnsortedDeck(newDeck, len(newDeck), numJokers) == false {
     t.Errorf("New unsorted deck is not in the correct order.")
   }
 }
@@ -94,7 +94,7 @@ func TestCreateEuchreDeck(t *testing.T) {
     t.Errorf("Deck is not %d cards", 25)
   }
 
-  if testSortedDeck(newDeck, len(newDeck), numJokers) == false {
+  if testUnsortedDeck(newDeck, len(newDeck), numJokers) == false {
     t.Errorf("New unsorted deck is not in the correct order.")
   }
 }
@@ -107,7 +107,7 @@ func TestNewWithJokers(t *testing.T) {
     t.Errorf("Deck is not %d cards", (deck.StandardDeckSize + numJokers))
   }
 
-  if testSortedDeck(newDeck, len(newDeck), numJokers) == false {
+  if testUnsortedDeck(newDeck, len(newDeck), numJokers) == false {
     t.Errorf("New unsorted deck is not in the correct order.")
   }
 }

@@ -1,3 +1,7 @@
+// Impements operation on cards in a deck
+// Shuffle
+// Draw
+// Discard
 package deck
 
 import (
