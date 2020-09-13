@@ -4,6 +4,7 @@ import (
   "testing"
 )
 
+// Tests cardTypeExcluded() in various combinations of card types and removal lists.
 func TestCardTypeExcluded(t *testing.T) {
   shouldBeExcluded := "Ace"
   if !cardTypeExcluded([]string{shouldBeExcluded}, "Ace") {
@@ -20,6 +21,8 @@ func TestCardTypeExcluded(t *testing.T) {
   }
 }
 
+// Tests createCardTypes() with different removal lists and expects a list of
+// card types excluding types from the removal list
 func TestCreateCardTypes(t *testing.T) {
   cardTypes := createCardTypes([]string{}, false)
   if len(cardTypes) != 13 {
@@ -36,6 +39,8 @@ func TestCreateCardTypes(t *testing.T) {
   }
 }
 
+// Tests deck properties of a standard euchre decks when a removal list and 1 joker
+// is provided to the New() function.
 func TestCreateEuchreDeck(t *testing.T) {
   numJokers := 1
   d := New([]string{"2", "3", "4", "5", "6", "7", "8"}, numJokers)
@@ -49,6 +54,7 @@ func TestCreateEuchreDeck(t *testing.T) {
   }
 }
 
+// Tests New() with standard settings. Should provide an unsorted 52 card deck
 func TestNew(t *testing.T) {
   numJokers := 0
   d := New([]string{}, numJokers)
@@ -62,6 +68,8 @@ func TestNew(t *testing.T) {
   }
 }
 
+// Tests New() with jokers added. Should return an unsorted deck that contains
+// 52 + (number of jokers specified) cards
 func TestNewWithJokers(t *testing.T) {
   numJokers := 5
   d := New([]string{}, numJokers)
@@ -75,6 +83,8 @@ func TestNewWithJokers(t *testing.T) {
   }
 }
 
+// Tests New() with a list of card types to remove from the deck and expects
+// a deck without cards in the removal list
 func TestNewWithRemoved(t *testing.T) {
   numJokers := 0
   d := New([]string{}, numJokers)
@@ -88,6 +98,7 @@ func TestNewWithRemoved(t *testing.T) {
   }
 }
 
+// Tests Shuffle() with "random" style specified. Expects a deck in a random order.
 func TestRandomShuffle(t *testing.T) {
   d := New([]string{}, 0)
 
@@ -124,6 +135,7 @@ func TestRandomShuffle(t *testing.T) {
 // PRIVATE //
 /////////////
 
+// Private function to test for an unsorted deck, a few tests want to check this easily.
 func testUnsortedDeck(d Deck, deckSize int, numJokers int) bool {
   expectedSuit  := 0
   expectedValue := 0
